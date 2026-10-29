@@ -54,6 +54,7 @@ interface Balloon {
 
 export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }) => {
   const store = useAppStore();
+  const isDark = store.settings.theme === 'dark';
   const [gameState, setGameState] = useState<'menu' | 'playing' | 'gameover'>('menu');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -376,21 +377,27 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Game Stage Enclosure */}
-      <div className="w-full p-6 md:p-8 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl relative min-h-[460px] flex flex-col">
+      <div className={`w-full p-6 md:p-8 rounded-2xl border shadow-lg relative min-h-[460px] flex flex-col ${
+        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+      }`}>
         {/* Top Game Bar */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+        <div className={`flex items-center justify-between border-b pb-4 mb-4 ${
+          isDark ? 'border-slate-800' : 'border-slate-200'
+        }`}>
           <div className="flex items-center gap-3">
-            <div className="font-bold text-white text-lg capitalize flex items-center gap-2">
-              {activeGameId === 'wordrain' && <CloudRain className="w-5 h-5 text-cyan-400" />}
-              {activeGameId === 'balloon' && <Compass className="w-5 h-5 text-amber-400" />}
-              {activeGameId === 'zombie' && <ShieldAlert className="w-5 h-5 text-rose-400" />}
-              {activeGameId === 'scramble' && <Shuffle className="w-5 h-5 text-indigo-400" />}
-              {activeGameId === 'accuracy' && <AlertOctagon className="w-5 h-5 text-emerald-400" />}
-              {activeGameId === 'keyhunter' && <Crosshair className="w-5 h-5 text-purple-400" />}
+            <div className={`font-bold text-lg capitalize flex items-center gap-2 ${
+              isDark ? 'text-white' : 'text-slate-900'
+            }`}>
+              {activeGameId === 'wordrain' && <CloudRain className="w-5 h-5 text-cyan-500" />}
+              {activeGameId === 'balloon' && <Compass className="w-5 h-5 text-amber-500" />}
+              {activeGameId === 'zombie' && <ShieldAlert className="w-5 h-5 text-rose-500" />}
+              {activeGameId === 'scramble' && <Shuffle className="w-5 h-5 text-indigo-500" />}
+              {activeGameId === 'accuracy' && <AlertOctagon className="w-5 h-5 text-emerald-500" />}
+              {activeGameId === 'keyhunter' && <Crosshair className="w-5 h-5 text-purple-500" />}
               {activeGameId} Arcade
             </div>
-            <div className="text-xs text-slate-400 font-mono">
-              High Score: <span className="text-amber-400 font-bold">{highScore}</span>
+            <div className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              High Score: <span className="text-amber-500 font-bold">{highScore}</span>
             </div>
           </div>
 
@@ -398,18 +405,18 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
             {gameState === 'playing' && (
               <>
                 {activeGameId !== 'keyhunter' && activeGameId !== 'accuracy' && (
-                  <div className="flex items-center gap-1 text-rose-400">
+                  <div className="flex items-center gap-1 text-rose-500">
                     {[...Array(lives)].map((_, i) => (
                       <Heart key={i} className="w-4 h-4 fill-current" />
                     ))}
                   </div>
                 )}
                 {activeGameId === 'keyhunter' && (
-                  <div className="text-sm font-mono font-bold text-amber-400">
+                  <div className="text-sm font-mono font-bold text-amber-500">
                     Time: {hunterTimeLeft}s
                   </div>
                 )}
-                <div className="text-sm font-mono font-bold text-cyan-400">
+                <div className="text-sm font-mono font-bold text-cyan-600 dark:text-cyan-400">
                   Score: {score}
                 </div>
               </>
@@ -420,10 +427,10 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
         {/* Menu Screen */}
         {gameState === 'menu' && (
           <div className="flex-1 flex flex-col items-center justify-center text-center gap-5 my-auto">
-            <h3 className="text-3xl font-extrabold text-white">
+            <h3 className={`text-3xl font-extrabold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Ready to Play {activeGameId.toUpperCase()}?
             </h3>
-            <p className="text-xs md:text-sm text-slate-400 max-w-md">
+            <p className={`text-xs md:text-sm max-w-md ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
               {activeGameId === 'wordrain' && 'Words rain from the sky. Type them quickly before they crash!'}
               {activeGameId === 'balloon' && 'Balloons float upwards. Type words to pop them before they escape!'}
               {activeGameId === 'zombie' && 'Zombies march toward your defense gate. Type words to shoot them down!'}
@@ -433,7 +440,7 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
             </p>
             <button
               onClick={startGame}
-              className="py-3 px-8 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-lg shadow-cyan-500/25 transition-transform hover:scale-105"
+              className="py-3 px-8 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-cyan-500/25 transition-transform hover:scale-105"
             >
               <Play className="w-4 h-4 fill-current" />
               Play Game
@@ -446,11 +453,17 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
           <div className="flex-1 flex flex-col justify-between relative overflow-hidden">
             {/* 1. Word Rain Surface */}
             {activeGameId === 'wordrain' && (
-              <div className="relative w-full h-[320px] bg-slate-950/60 rounded-xl border border-slate-800 overflow-hidden">
+              <div className={`relative w-full h-[320px] rounded-xl border overflow-hidden ${
+                isDark ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-100/70 border-slate-200'
+              }`}>
                 {fallingWords.map(fw => (
                   <div
                     key={fw.id}
-                    className="absolute px-3 py-1 rounded-lg bg-cyan-950/80 border border-cyan-500/60 text-cyan-300 font-mono text-sm font-bold shadow-md shadow-cyan-500/20 transition-all duration-100"
+                    className={`absolute px-3 py-1 rounded-lg border font-mono text-sm font-bold shadow-md transition-all duration-100 ${
+                      isDark
+                        ? 'bg-cyan-950/80 border-cyan-500/60 text-cyan-300'
+                        : 'bg-white border-cyan-400 text-cyan-700 shadow-cyan-500/10'
+                    }`}
                     style={{ left: `${fw.x}%`, top: `${fw.y}%` }}
                   >
                     {fw.word}
@@ -461,7 +474,9 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
 
             {/* 2. Balloon Pop Surface */}
             {activeGameId === 'balloon' && (
-              <div className="relative w-full h-[320px] bg-slate-950/60 rounded-xl border border-slate-800 overflow-hidden">
+              <div className={`relative w-full h-[320px] rounded-xl border overflow-hidden ${
+                isDark ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-100/70 border-slate-200'
+              }`}>
                 {balloons.map(b => (
                   <div
                     key={b.id}
@@ -476,20 +491,30 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
 
             {/* 3. Zombie Defense Surface */}
             {activeGameId === 'zombie' && (
-              <div className="relative w-full h-[320px] bg-slate-950/60 rounded-xl border border-slate-800 p-4 flex flex-col justify-center">
-                <div className="w-full flex justify-between text-xs font-mono text-slate-500 mb-2">
+              <div className={`relative w-full h-[320px] rounded-xl border p-4 flex flex-col justify-center ${
+                isDark ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-100/70 border-slate-200'
+              }`}>
+                <div className={`w-full flex justify-between text-xs font-mono mb-2 ${
+                  isDark ? 'text-slate-500' : 'text-slate-600'
+                }`}>
                   <span>DEFENSE BASE 🛡️</span>
                   <span>WAVE {wave}</span>
                   <span>ZOMBIE HORDE 🧟</span>
                 </div>
-                <div className="relative h-20 bg-slate-900 rounded-xl border border-slate-800 flex items-center px-4">
+                <div className={`relative h-20 rounded-xl border flex items-center px-4 ${
+                  isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-300'
+                }`}>
                   {zombies.map(z => (
                     <div
                       key={z.id}
                       className="absolute flex flex-col items-center gap-1 transition-all duration-100"
                       style={{ left: `${z.dist}%` }}
                     >
-                      <span className="px-2 py-0.5 rounded bg-rose-950 border border-rose-500 text-rose-300 text-xs font-mono font-bold">
+                      <span className={`px-2 py-0.5 rounded border text-xs font-mono font-bold ${
+                        isDark
+                          ? 'bg-rose-950 border-rose-500 text-rose-300'
+                          : 'bg-rose-100 border-rose-400 text-rose-700'
+                      }`}>
                         {z.word}
                       </span>
                       <span className="text-2xl">{z.isBoss ? '👹' : '🧟'}</span>
@@ -502,37 +527,45 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
             {/* 4. Word Scramble Surface */}
             {activeGameId === 'scramble' && (
               <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
-                <div className="text-xs uppercase font-mono text-slate-400">Unscramble This Word:</div>
-                <div className="text-4xl md:text-5xl font-black font-mono tracking-widest text-amber-400 bg-slate-950 px-6 py-3 rounded-2xl border border-slate-800">
+                <div className={`text-xs uppercase font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Unscramble This Word:</div>
+                <div className={`text-4xl md:text-5xl font-black font-mono tracking-widest px-6 py-3 rounded-2xl border ${
+                  isDark
+                    ? 'text-amber-400 bg-slate-950 border-slate-800'
+                    : 'text-amber-600 bg-amber-50/80 border-amber-200'
+                }`}>
                   {scrambledWord.toUpperCase()}
                 </div>
-                <div className="text-xs text-slate-400 font-mono">Streak: {scrambleStreak}</div>
+                <div className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Streak: {scrambleStreak}</div>
               </div>
             )}
 
             {/* 5. Accuracy Sudden Death Surface */}
             {activeGameId === 'accuracy' && (
               <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
-                <div className="text-xs uppercase font-mono text-rose-400 font-bold">
+                <div className="text-xs uppercase font-mono text-rose-500 font-bold">
                   SUDDEN DEATH: 1 MISTAKE = GAME OVER
                 </div>
-                <div className="text-4xl font-extrabold font-mono text-white bg-slate-950 px-8 py-3 rounded-2xl border border-slate-800">
+                <div className={`text-4xl font-extrabold font-mono px-8 py-3 rounded-2xl border ${
+                  isDark
+                    ? 'text-white bg-slate-950 border-slate-800'
+                    : 'text-slate-900 bg-slate-100 border-slate-300'
+                }`}>
                   {accuracyTarget}
                 </div>
-                <div className="text-xs text-slate-400 font-mono">Words survived: {accuracyStreak}</div>
+                <div className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Words survived: {accuracyStreak}</div>
               </div>
             )}
 
             {/* 6. Key Hunter Surface */}
             {activeGameId === 'keyhunter' && (
               <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center">
-                <div className="text-xs uppercase font-mono text-purple-400 font-bold">
+                <div className="text-xs uppercase font-mono text-purple-500 font-bold">
                   TAP THE KEY IMMEDIATELY
                 </div>
-                <div className="w-28 h-28 rounded-2xl bg-purple-600/30 border-2 border-purple-400 flex items-center justify-center text-6xl font-black font-mono text-white shadow-[0_0_30px_rgba(168,85,247,0.5)] animate-pulse">
+                <div className="w-28 h-28 rounded-2xl bg-purple-600/20 border-2 border-purple-500 flex items-center justify-center text-6xl font-black font-mono text-purple-600 dark:text-purple-300 shadow-[0_0_30px_rgba(168,85,247,0.3)] animate-pulse">
                   {hunterTargetKey}
                 </div>
-                <div className="text-xs text-slate-400 font-mono">Keys hit: {hunterScore}</div>
+                <div className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Keys hit: {hunterScore}</div>
               </div>
             )}
 
@@ -545,7 +578,11 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
                   value={currentInput}
                   onChange={handleInputChange}
                   placeholder="Type word here..."
-                  className="w-full p-3.5 rounded-xl bg-slate-950 border border-slate-700 font-mono text-lg text-white focus:outline-none focus:border-cyan-400 shadow-inner"
+                  className={`w-full p-3.5 rounded-xl border font-mono text-lg focus:outline-none focus:border-cyan-500 ${
+                    isDark
+                      ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-sm'
+                  }`}
                 />
               </div>
             )}
@@ -555,17 +592,17 @@ export const ArcadeGames: React.FC<{ activeGameId: string }> = ({ activeGameId }
         {/* Game Over Screen */}
         {gameState === 'gameover' && (
           <div className="flex-1 flex flex-col items-center justify-center text-center gap-5 my-auto">
-            <Trophy className="w-12 h-12 text-amber-400 animate-bounce" />
-            <h3 className="text-3xl font-extrabold text-white">Game Over!</h3>
-            <div className="text-sm text-slate-400">
+            <Trophy className="w-12 h-12 text-amber-500 animate-bounce" />
+            <h3 className={`text-3xl font-extrabold ${isDark ? 'text-white' : 'text-slate-900'}`}>Game Over!</h3>
+            <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
               Your Final Score:{' '}
-              <span className="font-mono font-bold text-2xl text-cyan-400">
+              <span className="font-mono font-bold text-2xl text-cyan-600 dark:text-cyan-400">
                 {activeGameId === 'keyhunter' ? hunterScore : score}
               </span>
             </div>
             <button
               onClick={startGame}
-              className="py-2.5 px-6 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/25 transition-transform hover:scale-105"
+              className="py-2.5 px-6 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/25 transition-transform hover:scale-105"
             >
               <RotateCcw className="w-4 h-4" />
               Play Again

@@ -1,1 +1,38 @@
 @import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Lexend', 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+.font-lexend {
+  font-family: 'Lexend', 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-sans {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}

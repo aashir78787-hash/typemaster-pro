@@ -39,6 +39,7 @@ const RACE_TEXT = 'speed and accuracy are the true hallmarks of an elite typist 
 
 export const TypingRaceGame: React.FC = () => {
   const store = useAppStore();
+  const isDark = store.settings.theme === 'dark';
   const [mode, setMode] = useState<'lobby' | 'countdown' | 'racing' | 'podium' | 'garage'>('lobby');
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'fast' | 'pro'>('medium');
   const [roomCode, setRoomCode] = useState('RACE-902');
@@ -246,30 +247,38 @@ export const TypingRaceGame: React.FC = () => {
   return (
     <div className="w-full flex flex-col gap-6">
       {/* Race Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl">
+      <div className={`flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl border shadow-sm ${
+        isDark ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200'
+      }`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+            isDark ? 'bg-cyan-500/20 border border-cyan-500/40 text-cyan-400' : 'bg-cyan-50 border border-cyan-200 text-cyan-600'
+          }`}>
             <Flag className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <h2 className={`text-xl font-bold flex items-center gap-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
               TypeMaster Grand Prix 🏎️
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               Type fast to accelerate your racer across the finish line!
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold">
+          <div className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-300 text-xs font-mono font-bold">
             Coins: {store.profile.coins} 🪙
           </div>
           <button
             onClick={() => setMode(mode === 'garage' ? 'lobby' : 'garage')}
-            className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-700"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
+              isDark
+                ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
+            }`}
           >
-            <ShoppingCart className="w-4 h-4 text-amber-400" />
+            <ShoppingCart className="w-4 h-4 text-amber-500" />
             {mode === 'garage' ? 'Back to Race' : 'Car Shop'}
           </button>
         </div>
@@ -277,9 +286,11 @@ export const TypingRaceGame: React.FC = () => {
 
       {/* Mode View: Garage / Car Shop */}
       {mode === 'garage' && (
-        <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col gap-5">
-          <h3 className="text-lg font-bold text-white">Racer Garage & Skins</h3>
-          <p className="text-xs text-slate-400">Unlock custom vehicle sprites using your earned coins.</p>
+        <div className={`p-6 rounded-2xl border flex flex-col gap-5 ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+        }`}>
+          <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Racer Garage & Skins</h3>
+          <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Unlock custom vehicle sprites using your earned coins.</p>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {RACE_CARS.map(car => {
               const isUnlocked = store.profile.unlockedCars.includes(car.id);
@@ -289,20 +300,28 @@ export const TypingRaceGame: React.FC = () => {
                   key={car.id}
                   className={`p-4 rounded-xl border flex flex-col items-center gap-3 text-center transition-all ${
                     isSelected
-                      ? 'bg-cyan-950/40 border-cyan-500 ring-2 ring-cyan-500/30'
-                      : 'bg-slate-950/60 border-slate-800'
+                      ? isDark
+                        ? 'bg-cyan-950/40 border-cyan-500 ring-2 ring-cyan-500/30'
+                        : 'bg-cyan-50/70 border-cyan-500 ring-2 ring-cyan-500/30'
+                      : isDark
+                        ? 'bg-slate-950/60 border-slate-800'
+                        : 'bg-slate-50 border-slate-200'
                   }`}
                 >
                   <div className="text-5xl my-2">{car.emoji}</div>
-                  <div className="font-bold text-white text-sm">{car.name}</div>
+                  <div className={`font-bold text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>{car.name}</div>
                   {isUnlocked ? (
                     <button
                       disabled={isSelected}
                       onClick={() => store.updateProfile({ selectedCar: car.id })}
                       className={`w-full py-1.5 rounded-lg text-xs font-bold transition-colors ${
                         isSelected
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                          : 'bg-slate-800 text-slate-200 hover:bg-slate-700'
+                          ? isDark
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                            : 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                          : isDark
+                            ? 'bg-slate-800 text-slate-200 hover:bg-slate-700'
+                            : 'bg-slate-200 text-slate-800 hover:bg-slate-300'
                       }`}
                     >
                       {isSelected ? 'Equipped' : 'Select'}
@@ -325,22 +344,30 @@ export const TypingRaceGame: React.FC = () => {
 
       {/* Mode View: Lobby */}
       {mode === 'lobby' && (
-        <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col items-center text-center gap-6 max-w-xl mx-auto shadow-2xl">
-          <div className="w-16 h-16 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-4xl">
+        <div className={`p-8 rounded-2xl border flex flex-col items-center text-center gap-6 max-w-xl mx-auto shadow-lg ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+        }`}>
+          <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center text-4xl ${
+            isDark ? 'bg-cyan-500/20 border-cyan-500/40' : 'bg-cyan-50 border-cyan-200'
+          }`}>
             {currentCar.emoji}
           </div>
 
           <div>
-            <h3 className="text-2xl font-black text-white">Choose Your Race Arena</h3>
-            <p className="text-xs text-slate-400 mt-1">Race solo against tuned AI bots or create a multiplayer room!</p>
+            <h3 className={`text-2xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>Choose Your Race Arena</h3>
+            <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Race solo against tuned AI bots or create a multiplayer room!</p>
           </div>
 
           {/* Mode Switcher */}
-          <div className="flex items-center gap-2 p-1 rounded-xl bg-slate-950 border border-slate-800">
+          <div className={`flex items-center gap-2 p-1 rounded-xl border ${
+            isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+          }`}>
             <button
               onClick={() => setIsMultiplayer(false)}
               className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-                !isMultiplayer ? 'bg-cyan-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
+                !isMultiplayer
+                  ? 'bg-cyan-500 text-slate-950 shadow-md font-extrabold'
+                  : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Bot className="w-4 h-4" /> Solo vs AI Bots
@@ -348,7 +375,9 @@ export const TypingRaceGame: React.FC = () => {
             <button
               onClick={() => setIsMultiplayer(true)}
               className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
-                isMultiplayer ? 'bg-cyan-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-white'
+                isMultiplayer
+                  ? 'bg-cyan-500 text-slate-950 shadow-md font-extrabold'
+                  : isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Users className="w-4 h-4" /> Multiplayer Room
@@ -357,7 +386,7 @@ export const TypingRaceGame: React.FC = () => {
 
           {!isMultiplayer ? (
             <div className="flex flex-col gap-2 w-full">
-              <span className="text-xs font-mono text-slate-400">AI Bot Difficulty:</span>
+              <span className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>AI Bot Difficulty:</span>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {BOT_PRESETS.map(b => (
                   <button
@@ -365,8 +394,12 @@ export const TypingRaceGame: React.FC = () => {
                     onClick={() => setSelectedDifficulty(b.difficulty as 'easy' | 'medium' | 'fast' | 'pro')}
                     className={`p-2.5 rounded-xl border text-center transition-all ${
                       selectedDifficulty === b.difficulty
-                        ? 'bg-slate-800 border-cyan-500 text-cyan-400 font-bold'
-                        : 'bg-slate-950/60 border-slate-800 text-slate-400'
+                        ? isDark
+                          ? 'bg-slate-800 border-cyan-500 text-cyan-400 font-bold'
+                          : 'bg-cyan-50 border-cyan-500 text-cyan-700 font-bold'
+                        : isDark
+                          ? 'bg-slate-950/60 border-slate-800 text-slate-400'
+                          : 'bg-slate-50 border-slate-200 text-slate-600'
                     }`}
                   >
                     <div className="text-xs">{b.name}</div>
@@ -376,16 +409,18 @@ export const TypingRaceGame: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs flex flex-col gap-2">
-              <span className="text-slate-400">Room Code:</span>
-              <span className="text-base font-mono font-bold text-amber-400">{roomCode}</span>
-              <span className="text-[10px] text-slate-500">2 Players in lobby ready</span>
+            <div className={`w-full p-3 rounded-xl border text-xs flex flex-col gap-2 ${
+              isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+            }`}>
+              <span className={isDark ? 'text-slate-400' : 'text-slate-500'}>Room Code:</span>
+              <span className="text-base font-mono font-bold text-amber-500">{roomCode}</span>
+              <span className={`text-[10px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>2 Players in lobby ready</span>
             </div>
           )}
 
           <button
             onClick={startRaceSequence}
-            className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 text-sm font-extrabold flex items-center justify-center gap-2 shadow-xl shadow-cyan-500/25 transition-transform hover:scale-[1.02]"
+            className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 transition-transform hover:scale-[1.02]"
           >
             <Play className="w-5 h-5 fill-current" />
             Start Race!
@@ -395,9 +430,11 @@ export const TypingRaceGame: React.FC = () => {
 
       {/* Countdown Overlay */}
       {mode === 'countdown' && (
-        <div className="p-16 rounded-2xl bg-slate-900 border border-slate-800 text-center flex flex-col items-center justify-center gap-4">
-          <div className="text-xs uppercase font-mono tracking-widest text-cyan-400">Get Ready</div>
-          <div className="text-7xl font-black font-mono text-white animate-bounce">
+        <div className={`p-16 rounded-2xl border text-center flex flex-col items-center justify-center gap-4 ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-md'
+        }`}>
+          <div className="text-xs uppercase font-mono tracking-widest text-cyan-500 font-bold">Get Ready</div>
+          <div className={`text-7xl font-black font-mono animate-bounce ${isDark ? 'text-white' : 'text-slate-900'}`}>
             {countdown > 0 ? countdown : 'GO!'}
           </div>
         </div>
@@ -407,8 +444,12 @@ export const TypingRaceGame: React.FC = () => {
       {(mode === 'racing' || mode === 'podium') && (
         <div className="flex flex-col gap-6">
           {/* Race Track */}
-          <div className="p-4 md:p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl flex flex-col gap-4">
-            <div className="flex items-center justify-between text-xs font-mono text-slate-400 border-b border-slate-800 pb-2">
+          <div className={`p-4 md:p-6 rounded-2xl border shadow-lg flex flex-col gap-4 ${
+            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+          }`}>
+            <div className={`flex items-center justify-between text-xs font-mono border-b pb-2 ${
+              isDark ? 'text-slate-400 border-slate-800' : 'text-slate-500 border-slate-200'
+            }`}>
               <span>START 🏁</span>
               <span>TRACK LENGTH: {words.current.length} WORDS</span>
               <span>FINISH 🏁</span>
@@ -423,17 +464,21 @@ export const TypingRaceGame: React.FC = () => {
                 );
                 return (
                   <div key={racer.id} className="flex flex-col gap-1">
-                    <div className="flex justify-between text-xs font-semibold text-slate-300">
+                    <div className={`flex justify-between text-xs font-semibold ${
+                      isDark ? 'text-slate-300' : 'text-slate-700'
+                    }`}>
                       <span className="flex items-center gap-1.5">
                         <span className="text-base">{racer.carEmoji}</span>
                         {racer.name}
                       </span>
-                      <span className="font-mono text-cyan-400">
+                      <span className="font-mono text-cyan-600 dark:text-cyan-400 font-bold">
                         {racer.finishTime ? `${racer.finishTime}s (Done)` : `${Math.round(progressPct)}%`}
                       </span>
                     </div>
 
-                    <div className="relative h-9 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center px-1">
+                    <div className={`relative h-10 rounded-xl border overflow-hidden flex items-center px-1 ${
+                      isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+                    }`}>
                       {/* Checkered Finish Strip */}
                       <div className="absolute right-0 top-0 bottom-0 w-4 bg-[repeating-linear-gradient(45deg,#000,#000_4px,#fff_4px,#fff_8px)] opacity-30" />
 
@@ -455,14 +500,18 @@ export const TypingRaceGame: React.FC = () => {
 
           {/* Player Typing Deck */}
           {mode === 'racing' && (
-            <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col gap-4 shadow-xl">
-              <div className="text-xs font-mono text-slate-400">Word to type:</div>
+            <div className={`p-6 rounded-2xl border flex flex-col gap-4 shadow-sm ${
+              isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+            }`}>
+              <div className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Word to type:</div>
               {/* Words stream */}
-              <div className="flex flex-wrap gap-2 text-lg md:text-xl font-mono leading-relaxed p-4 rounded-xl bg-slate-950 border border-slate-800">
+              <div className={`flex flex-wrap gap-2 text-lg md:text-xl font-mono leading-relaxed p-4 rounded-xl border ${
+                isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`}>
                 {words.current.map((w, idx) => {
-                  let cls = 'text-slate-600';
-                  if (idx < currentWordIdx) cls = 'text-emerald-400 font-semibold';
-                  else if (idx === currentWordIdx) cls = 'text-white font-bold bg-cyan-500/30 px-2 rounded ring-1 ring-cyan-400';
+                  let cls = isDark ? 'text-slate-500' : 'text-slate-400';
+                  if (idx < currentWordIdx) cls = 'text-emerald-600 dark:text-emerald-400 font-semibold';
+                  else if (idx === currentWordIdx) cls = isDark ? 'text-white font-bold bg-cyan-500/30 px-2 rounded ring-1 ring-cyan-400' : 'text-cyan-900 font-bold bg-cyan-100 px-2 rounded ring-1 ring-cyan-400';
                   return <span key={idx} className={cls}>{w}</span>;
                 })}
               </div>
@@ -475,7 +524,11 @@ export const TypingRaceGame: React.FC = () => {
                   value={currentInput}
                   onChange={handleInputChange}
                   placeholder="Type the highlighted word and press Space..."
-                  className="flex-1 p-3.5 rounded-xl bg-slate-950 border border-slate-700 font-mono text-lg text-white focus:outline-none focus:border-cyan-400 shadow-inner"
+                  className={`flex-1 p-3.5 rounded-xl border font-mono text-lg focus:outline-none focus:border-cyan-500 ${
+                    isDark
+                      ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500'
+                      : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-sm'
+                  }`}
                 />
               </div>
             </div>
@@ -483,9 +536,11 @@ export const TypingRaceGame: React.FC = () => {
 
           {/* Podium / Results */}
           {mode === 'podium' && (
-            <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 text-center flex flex-col items-center gap-5 shadow-2xl">
-              <Trophy className="w-12 h-12 text-amber-400 animate-bounce" />
-              <h3 className="text-3xl font-black text-white">Race Completed!</h3>
+            <div className={`p-8 rounded-2xl border text-center flex flex-col items-center gap-5 shadow-lg ${
+              isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+            }`}>
+              <Trophy className="w-12 h-12 text-amber-500 animate-bounce" />
+              <h3 className={`text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>Race Completed!</h3>
 
               <div className="w-full max-w-md flex flex-col gap-2">
                 {getRankings().map((r, rankIdx) => (
@@ -493,12 +548,16 @@ export const TypingRaceGame: React.FC = () => {
                     key={r.id}
                     className={`p-3 rounded-xl border flex items-center justify-between font-mono text-sm ${
                       r.isPlayer
-                        ? 'bg-cyan-950/60 border-cyan-500 font-bold text-white'
-                        : 'bg-slate-950 border-slate-800 text-slate-300'
+                        ? isDark
+                          ? 'bg-cyan-950/60 border-cyan-500 font-bold text-white'
+                          : 'bg-cyan-50 border-cyan-400 font-bold text-cyan-900'
+                        : isDark
+                          ? 'bg-slate-950 border-slate-800 text-slate-300'
+                          : 'bg-slate-50 border-slate-200 text-slate-700'
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="w-6 text-center font-bold text-amber-400">#{rankIdx + 1}</span>
+                      <span className="w-6 text-center font-bold text-amber-500">#{rankIdx + 1}</span>
                       <span>{r.carEmoji} {r.name}</span>
                     </div>
                     <span>{r.finishTime ? `${r.finishTime}s` : 'DNF'}</span>
@@ -509,13 +568,17 @@ export const TypingRaceGame: React.FC = () => {
               <div className="flex items-center gap-3 mt-2">
                 <button
                   onClick={() => setMode('lobby')}
-                  className="py-2.5 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors"
+                  className={`py-2.5 px-5 rounded-xl text-xs font-semibold transition-colors border ${
+                    isDark
+                      ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
+                  }`}
                 >
                   Race Lobby
                 </button>
                 <button
                   onClick={startRaceSequence}
-                  className="py-2.5 px-5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-colors shadow-lg shadow-cyan-500/20"
+                  className="py-2.5 px-5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-white text-xs font-bold transition-colors shadow-md shadow-cyan-500/20"
                 >
                   Rematch!
                 </button>

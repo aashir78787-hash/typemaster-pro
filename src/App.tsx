@@ -25,20 +25,23 @@ export default function App() {
   const [placementOpen, setPlacementOpen] = useState(false);
 
   const activeTab = store.activeTab;
+  const isLight = store.settings.theme === 'light';
 
-  // Font family resolution
+  // Font family resolution: default to clean, friendly Lexend
   const fontClass =
     store.settings.fontFamily === 'mono'
       ? 'font-mono'
-      : store.settings.fontFamily === 'sans'
-      ? 'font-sans'
       : store.settings.fontFamily === 'serif'
       ? 'font-serif'
-      : 'font-mono';
+      : 'font-lexend';
 
   return (
-    <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col ${fontClass}`}>
-      {/* Top Bar */}
+    <div
+      className={`min-h-screen transition-colors duration-200 flex flex-col ${
+        isLight ? 'bg-slate-50 text-slate-800' : 'bg-slate-950 text-slate-100'
+      } ${fontClass}`}
+    >
+      {/* Top Bar with Instant Theme Toggle */}
       <Navbar
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenPlacement={() => setPlacementOpen(true)}
@@ -55,7 +58,13 @@ export default function App() {
       </main>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden sticky bottom-0 z-40 bg-slate-950/95 border-t border-slate-800 backdrop-blur-md px-2 py-2 flex items-center justify-around text-[10px]">
+      <nav
+        className={`md:hidden sticky bottom-0 z-40 border-t backdrop-blur-md px-2 py-2 flex items-center justify-around text-[10px] transition-colors ${
+          isLight
+            ? 'bg-white/95 border-slate-200 text-slate-600 shadow-md'
+            : 'bg-slate-950/95 border-slate-800 text-slate-400'
+        }`}
+      >
         {[
           { id: 'lessons', label: 'Lessons', icon: <BookOpen className="w-4 h-4" /> },
           { id: 'test', label: 'Test', icon: <Timer className="w-4 h-4" /> },
@@ -71,7 +80,13 @@ export default function App() {
               store.setTab(item.id as any);
             }}
             className={`flex flex-col items-center gap-1 py-1 px-2 rounded-lg transition-colors ${
-              activeTab === item.id ? 'text-cyan-400 font-bold' : 'text-slate-400'
+              activeTab === item.id
+                ? isLight
+                  ? 'text-cyan-700 font-bold'
+                  : 'text-cyan-400 font-bold'
+                : isLight
+                ? 'text-slate-500 hover:text-slate-800'
+                : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             {item.icon}

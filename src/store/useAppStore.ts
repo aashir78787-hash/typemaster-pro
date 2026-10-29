@@ -52,8 +52,8 @@ export interface AppSettings {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  theme: 'dark',
-  fontFamily: 'mono',
+  theme: 'light',
+  fontFamily: 'sans',
   fontSize: 'lg',
   caretStyle: 'bar',
   soundTheme: 'mechanical',
@@ -187,10 +187,15 @@ class Store {
       const s = localStorage.getItem(STORAGE_KEYS.SETTINGS);
       if (s) {
         this.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(s) };
-        soundManager.setSoundEnabled(this.settings.soundTheme !== 'off');
-        soundManager.setTheme(this.settings.soundTheme);
-        soundManager.setVolume(this.settings.soundVolume);
       }
+      if (!localStorage.getItem('tm_theme_migrated_v2')) {
+        this.settings.theme = 'light';
+        this.settings.fontFamily = 'sans';
+        localStorage.setItem('tm_theme_migrated_v2', 'true');
+      }
+      soundManager.setSoundEnabled(this.settings.soundTheme !== 'off');
+      soundManager.setTheme(this.settings.soundTheme);
+      soundManager.setVolume(this.settings.soundVolume);
 
       const l = localStorage.getItem(STORAGE_KEYS.LESSONS);
       if (l) this.lessonProgress = JSON.parse(l);
@@ -242,6 +247,11 @@ class Store {
 
   public setTab(tab: 'lessons' | 'test' | 'games' | 'race' | 'dashboard' | 'leaderboard' | 'profile') {
     this.activeTab = tab;
+    this.notify();
+  }
+
+  public toggleTheme() {
+    this.settings.theme = this.settings.theme === 'light' ? 'dark' : 'light';
     this.notify();
   }
 

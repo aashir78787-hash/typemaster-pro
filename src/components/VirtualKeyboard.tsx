@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { getFingerForKey } from '../utils/typingMath';
+import { useAppStore } from '../store/useAppStore';
 
 interface VirtualKeyboardProps {
   targetChar?: string;
@@ -97,16 +98,30 @@ const KEYBOARD_ROWS: KeyDef[][] = [
   ],
 ];
 
-const FINGER_COLORS: Record<string, { bg: string; border: string; text: string; glow: string }> = {
-  'left-pinky': { bg: 'bg-purple-950/40', border: 'border-purple-600/40', text: 'text-purple-300', glow: 'shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-purple-600/40 border-purple-400' },
-  'left-ring': { bg: 'bg-indigo-950/40', border: 'border-indigo-600/40', text: 'text-indigo-300', glow: 'shadow-[0_0_15px_rgba(99,102,241,0.5)] bg-indigo-600/40 border-indigo-400' },
-  'left-middle': { bg: 'bg-blue-950/40', border: 'border-blue-600/40', text: 'text-blue-300', glow: 'shadow-[0_0_15px_rgba(59,130,246,0.5)] bg-blue-600/40 border-blue-400' },
-  'left-index': { bg: 'bg-emerald-950/40', border: 'border-emerald-600/40', text: 'text-emerald-300', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.5)] bg-emerald-600/40 border-emerald-400' },
-  'thumb': { bg: 'bg-teal-950/40', border: 'border-teal-600/40', text: 'text-teal-300', glow: 'shadow-[0_0_15px_rgba(20,184,166,0.5)] bg-teal-600/40 border-teal-400' },
-  'right-index': { bg: 'bg-amber-950/40', border: 'border-amber-600/40', text: 'text-amber-300', glow: 'shadow-[0_0_15px_rgba(245,158,11,0.5)] bg-amber-600/40 border-amber-400' },
-  'right-middle': { bg: 'bg-orange-950/40', border: 'border-orange-600/40', text: 'text-orange-300', glow: 'shadow-[0_0_15px_rgba(249,115,22,0.5)] bg-orange-600/40 border-orange-400' },
-  'right-ring': { bg: 'bg-rose-950/40', border: 'border-rose-600/40', text: 'text-rose-300', glow: 'shadow-[0_0_15px_rgba(244,63,94,0.5)] bg-rose-600/40 border-rose-400' },
-  'right-pinky': { bg: 'bg-pink-950/40', border: 'border-pink-600/40', text: 'text-pink-300', glow: 'shadow-[0_0_15px_rgba(236,72,153,0.5)] bg-pink-600/40 border-pink-400' },
+// Light Theme Styles
+const FINGER_STYLES_LIGHT: Record<string, { bg: string; border: string; text: string }> = {
+  'left-pinky': { bg: 'bg-purple-50/90', border: 'border-purple-200', text: 'text-purple-900' },
+  'left-ring': { bg: 'bg-indigo-50/90', border: 'border-indigo-200', text: 'text-indigo-900' },
+  'left-middle': { bg: 'bg-blue-50/90', border: 'border-blue-200', text: 'text-blue-900' },
+  'left-index': { bg: 'bg-emerald-50/90', border: 'border-emerald-200', text: 'text-emerald-900' },
+  'thumb': { bg: 'bg-teal-50/90', border: 'border-teal-200', text: 'text-teal-900' },
+  'right-index': { bg: 'bg-amber-50/90', border: 'border-amber-200', text: 'text-amber-900' },
+  'right-middle': { bg: 'bg-orange-50/90', border: 'border-orange-200', text: 'text-orange-900' },
+  'right-ring': { bg: 'bg-rose-50/90', border: 'border-rose-200', text: 'text-rose-900' },
+  'right-pinky': { bg: 'bg-pink-50/90', border: 'border-pink-200', text: 'text-pink-900' },
+};
+
+// Dark Theme Styles
+const FINGER_STYLES_DARK: Record<string, { bg: string; border: string; text: string }> = {
+  'left-pinky': { bg: 'bg-purple-950/40', border: 'border-purple-600/40', text: 'text-purple-300' },
+  'left-ring': { bg: 'bg-indigo-950/40', border: 'border-indigo-600/40', text: 'text-indigo-300' },
+  'left-middle': { bg: 'bg-blue-950/40', border: 'border-blue-600/40', text: 'text-blue-300' },
+  'left-index': { bg: 'bg-emerald-950/40', border: 'border-emerald-600/40', text: 'text-emerald-300' },
+  'thumb': { bg: 'bg-teal-950/40', border: 'border-teal-600/40', text: 'text-teal-300' },
+  'right-index': { bg: 'bg-amber-950/40', border: 'border-amber-600/40', text: 'text-amber-300' },
+  'right-middle': { bg: 'bg-orange-950/40', border: 'border-orange-600/40', text: 'text-orange-300' },
+  'right-ring': { bg: 'bg-rose-950/40', border: 'border-rose-600/40', text: 'text-rose-300' },
+  'right-pinky': { bg: 'bg-pink-950/40', border: 'border-pink-600/40', text: 'text-pink-300' },
 };
 
 export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
@@ -115,18 +130,20 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   isError,
   showHands = true,
 }) => {
+  const store = useAppStore();
+  const isLight = store.settings.theme === 'light';
+  const fingerStyles = isLight ? FINGER_STYLES_LIGHT : FINGER_STYLES_DARK;
+
   const activeChar = targetChar || '';
   const activeFingerAssignment = activeChar ? getFingerForKey(activeChar) : null;
   const isShiftRequired = /[A-Z!@#$%^&*()_+{}|:"<>?]/.test(activeChar);
 
-  // Check if a specific key is the active target
   const isKeyActive = (keyDef: KeyDef) => {
     if (!activeChar) return false;
     if (activeChar === ' ' && keyDef.key === ' ') return true;
     if (keyDef.key.toLowerCase() === activeChar.toLowerCase()) return true;
     if (keyDef.shiftDisplay && keyDef.shiftDisplay === activeChar) return true;
     if (isShiftRequired) {
-      // If target character is capital on the right, ShiftLeft is active; vice versa
       const hand = activeFingerAssignment?.hand;
       if (hand === 'left' && keyDef.key === 'ShiftRight') return true;
       if (hand === 'right' && keyDef.key === 'ShiftLeft') return true;
@@ -143,26 +160,34 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   return (
     <div className="w-full flex flex-col items-center gap-4 select-none">
       {/* Keyboard Enclosure */}
-      <div className="w-full max-w-4xl p-3 md:p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl backdrop-blur-md">
+      <div
+        className={`w-full max-w-4xl p-3 md:p-4 rounded-2xl transition-all duration-200 border ${
+          isLight
+            ? 'bg-slate-100/90 border-slate-200 shadow-xl'
+            : 'bg-slate-900/90 border-slate-800 shadow-2xl backdrop-blur-md'
+        }`}
+      >
         <div className="flex flex-col gap-1.5 md:gap-2">
           {KEYBOARD_ROWS.map((row, rowIdx) => (
             <div key={rowIdx} className="flex justify-center gap-1 md:gap-1.5 w-full">
               {row.map((k) => {
                 const active = isKeyActive(k);
                 const pressed = isLastTyped(k);
-                const fingerColor = FINGER_COLORS[k.finger] || FINGER_COLORS['thumb'];
+                const fingerStyle = fingerStyles[k.finger] || fingerStyles['thumb'];
                 const isHomeBump = k.key === 'f' || k.key === 'j';
 
                 let keyClasses = `relative flex flex-col items-center justify-center rounded-lg border text-xs md:text-sm font-mono font-medium transition-all duration-150 h-10 md:h-12 shadow-sm ${k.width || 'w-8 md:w-11'} `;
 
                 if (active) {
-                  keyClasses += `${fingerColor.glow} scale-[1.04] z-10 text-white font-bold ring-2 ring-white/70 `;
+                  keyClasses += isLight
+                    ? 'bg-cyan-600 border-cyan-500 text-white font-bold ring-2 ring-cyan-400 shadow-[0_0_15px_rgba(8,145,178,0.5)] scale-[1.04] z-10 '
+                    : 'bg-cyan-500 border-cyan-400 text-slate-950 font-bold ring-2 ring-white/70 shadow-[0_0_15px_rgba(6,182,212,0.6)] scale-[1.04] z-10 ';
                 } else if (pressed) {
                   keyClasses += isError
-                    ? 'bg-red-500/80 border-red-400 text-white shadow-[0_0_12px_rgba(239,68,68,0.8)] scale-95 '
-                    : 'bg-emerald-500/80 border-emerald-400 text-white shadow-[0_0_12px_rgba(16,185,129,0.8)] scale-95 ';
+                    ? 'bg-rose-500 border-rose-400 text-white shadow-md scale-95 '
+                    : 'bg-emerald-500 border-emerald-400 text-white shadow-md scale-95 ';
                 } else {
-                  keyClasses += `${fingerColor.bg} ${fingerColor.border} ${fingerColor.text} hover:brightness-125 `;
+                  keyClasses += `${fingerStyle.bg} ${fingerStyle.border} ${fingerStyle.text} hover:brightness-105 active:scale-95 `;
                 }
 
                 return (
@@ -178,7 +203,11 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
                     {/* Raised tactile bump for home keys F and J */}
                     {isHomeBump && (
-                      <span className="absolute bottom-1 w-2.5 h-0.5 bg-current rounded-full opacity-70" />
+                      <span
+                        className={`absolute bottom-1 w-2.5 h-0.5 rounded-full ${
+                          isLight ? 'bg-slate-500 opacity-80' : 'bg-current opacity-70'
+                        }`}
+                      />
                     )}
                   </div>
                 );
@@ -190,23 +219,41 @@ export const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
 
       {/* Hand & Finger Visual Guide */}
       {showHands && activeFingerAssignment && (
-        <div className="flex flex-wrap items-center justify-center gap-6 px-4 py-2 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs">
+        <div
+          className={`flex flex-wrap items-center justify-center gap-6 px-4 py-2.5 rounded-xl border text-xs font-medium transition-colors ${
+            isLight
+              ? 'bg-white border-slate-200 text-slate-700 shadow-sm'
+              : 'bg-slate-900/60 border-slate-800/80 text-slate-300'
+          }`}
+        >
           <div className="flex items-center gap-2">
-            <span className="text-slate-400">Target Key:</span>
-            <span className="px-2 py-0.5 font-mono font-bold rounded bg-slate-800 text-white border border-slate-700">
+            <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>Target Key:</span>
+            <span
+              className={`px-2.5 py-0.5 font-mono font-bold rounded border ${
+                isLight
+                  ? 'bg-slate-100 text-slate-900 border-slate-300 shadow-xs'
+                  : 'bg-slate-800 text-white border-slate-700'
+              }`}
+            >
               {activeChar === ' ' ? 'Space' : activeChar}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-slate-400">Use:</span>
-            <span className={`px-2 py-0.5 rounded font-semibold border ${activeFingerAssignment.colorClass}`}>
+            <span className={isLight ? 'text-slate-500' : 'text-slate-400'}>Recommended Finger:</span>
+            <span
+              className={`px-2.5 py-0.5 rounded font-semibold border ${
+                isLight
+                  ? 'bg-cyan-50 text-cyan-900 border-cyan-200'
+                  : activeFingerAssignment.colorClass
+              }`}
+            >
               {activeFingerAssignment.fingerName} ({activeFingerAssignment.hand.toUpperCase()} HAND)
             </span>
           </div>
 
           {isShiftRequired && (
-            <div className="flex items-center gap-1.5 text-amber-300">
+            <div className={`flex items-center gap-1.5 ${isLight ? 'text-amber-700 font-semibold' : 'text-amber-300'}`}>
               <span>⇧ Hold {activeFingerAssignment.hand === 'left' ? 'Right' : 'Left'} Shift</span>
             </div>
           )}
