@@ -1,0 +1,6 @@
+{
+  "name": "TypeMaster Pro",
+  "description": "Master touch typing with 40+ structured lessons, interactive virtual keyboard with finger guides, accuracy analytics, 7 arcade typing games, and real-time typing racing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
